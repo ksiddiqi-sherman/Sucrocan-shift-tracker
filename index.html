@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1023,11 +1023,18 @@ function buildSiloSection() {
     const div = document.createElement("div");
     div.className = "silo-group";
     div.style.marginBottom = "20px";
+    const prevSilos = JSON.parse(localStorage.getItem("sucrocan_prev_silos") || "{}");
     div.innerHTML = `<h3>${cat.label}</h3>` +
-      silos.map(s => `
+      silos.map(s => {
+        const prev = prevSilos[s.id];
+        const prevLabel = prev != null
+          ? `<small style="color:var(--blue-light);font-weight:600">Prev shift: ${prev} ${s.unit}</small>`
+          : `<small style="color:var(--gray-600)">No previous data</small>`;
+        return `
         <div class="silo-row">
           <label>${s.label}<br>
-            <small style="color:var(--gray-600);font-weight:400">Cap: ${s.capacity} ${s.unit}</small>
+            <small style="color:var(--gray-600);font-weight:400">Cap: ${s.capacity} ${s.unit}</small><br>
+            ${prevLabel}
           </label>
           <div class="silo-bar-wrap">
             <div class="silo-bar ${cat.cls}" id="bar-${s.id}" style="width:0%"></div>
@@ -1035,9 +1042,9 @@ function buildSiloSection() {
           <span class="silo-pct" id="pct-${s.id}">0%</span>
           <input type="number" min="0" max="${s.capacity}" step="0.1"
             placeholder="${s.unit}" id="silo-${s.id}"
-            onchange="updateSiloBar('${s.id}',${s.capacity})">
-        </div>`
-      ).join("");
+            onchange="updateSiloBar('${s.id}',${s.capacity}); updateCalcs();">
+        </div>`;
+      }).join("");
     body.appendChild(div);
   });
 }
@@ -1300,9 +1307,27 @@ function updateCalcs() {
   const shipRows      = getShipRows();
   const totalShipped  = shipRows.reduce((s, r) => s + r.dryMTBasis, 0);
   const sugarMelted   = parseFloat(document.getElementById("p-melted")?.value) || 0;
-  const totalProduced = totalShipped; // produced = shipped this shift
+
+  // Silo inventory change vs previous shift
+  const prevSilos = JSON.parse(localStorage.getItem("sucrocan_prev_silos") || "{}");
+  let drySiloChangeMT = 0;
+  (CONFIG.silos.dry || []).forEach(s => {
+    const cur  = state.siloLevels[s.id] || 0;
+    const prev = prevSilos[s.id] != null ? prevSilos[s.id] : cur; // if no prev, assume no change
+    drySiloChangeMT += (cur - prev);
+  });
+  let liquidSiloChangeM3 = 0;
+  (CONFIG.silos.liquid || []).forEach(s => {
+    const cur  = state.siloLevels[s.id] || 0;
+    const prev = prevSilos[s.id] != null ? prevSilos[s.id] : cur;
+    liquidSiloChangeM3 += (cur - prev);
+  });
+  // Liquid sugar ~1.35 MT/m³ at typical Brix 65
+  const siloInventoryChangeMT = drySiloChangeMT + (liquidSiloChangeM3 * 1.35);
+
+  const totalProduced = totalShipped + Math.max(0, siloInventoryChangeMT);
   const costPerMT     = totalProduced > 0 ? totalCost / totalProduced : 0;
-  const weightLoss    = sugarMelted - totalShipped;
+  const weightLoss    = sugarMelted - totalShipped - siloInventoryChangeMT;
   const weightLossPct = sugarMelted > 0 ? (weightLoss / sugarMelted) * 100 : 0;
 
   // update inline cost cells
@@ -1314,7 +1339,8 @@ function updateCalcs() {
   window._calc = { labourCost, energyCost, materialsCost, equipmentCost, totalCost,
     knownCost, knownCostMT,
     totalShipped, sugarMelted, totalProduced, costPerMT,
-    weightLoss, weightLossPct, water, gas, elec,
+    weightLoss, weightLossPct, siloInventoryChangeMT, drySiloChangeMT, liquidSiloChangeM3,
+    water, gas, elec,
     deBags, bfCount, tbCount, flCount, deCost, bfCost, tbCost, flCost };
 
   updateStrip();
@@ -1392,9 +1418,11 @@ function buildSummary() {
     <tr class="total-row"><td>KNOWN COST THIS SHIFT</td><td>${fmt(knownCost)}</td></tr>`;
 
   // Weight balance
+  const siloDir = (c.siloInventoryChangeMT||0) >= 0 ? "▲ Stored in silos" : "▼ Drawn from silos";
   document.getElementById("weight-table").innerHTML = `
-    <tr><td>Raw Sugar Melted (IN)</td><td>${(c.sugarMelted||0).toFixed(3)}</td></tr>
-    <tr><td>Finished Product Shipped (OUT, dry MT)</td><td>${(c.totalShipped||0).toFixed(3)}</td></tr>
+    <tr><td>Raw Sugar Melted (IN)</td><td>${(c.sugarMelted||0).toFixed(3)} MT</td></tr>
+    <tr><td>Finished Product Shipped (OUT)</td><td>${(c.totalShipped||0).toFixed(3)} MT</td></tr>
+    <tr><td>${siloDir} (net inventory change)</td><td>${Math.abs(c.siloInventoryChangeMT||0).toFixed(3)} MT</td></tr>
     <tr class="cost-row"><td>Weight Loss</td><td>${(c.weightLoss||0).toFixed(3)} MT (${(c.weightLossPct||0).toFixed(2)}%)</td></tr>`;
 
   // Validation warning
@@ -1442,6 +1470,8 @@ async function doSubmit() {
       });
       const result = await resp.json();
       if (!result.ok) throw new Error(result.error || "Unknown error from server");
+      // Save current silo levels as "previous" for next shift
+      localStorage.setItem("sucrocan_prev_silos", JSON.stringify(state.siloLevels));
       showToast("✅ Shift report submitted! ID: " + result.shiftId);
     } else {
       // Download as JSON if not configured
@@ -1499,6 +1529,8 @@ function buildPayload(c) {
     costPerMT:      c.costPerMT     || 0,
     weightLossMT:   c.weightLoss    || 0,
     weightLossPct:  c.weightLossPct || 0,
+    siloInventoryChangeMT: c.siloInventoryChangeMT || 0,
+    knownCostMT:    c.knownCostMT   || 0,
     notes:    document.getElementById("s-notes")?.value || "",
     shipments: getShipRows(),
     downtimeEvents: getDowntimeRows(),
