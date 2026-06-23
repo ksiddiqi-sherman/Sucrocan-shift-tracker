@@ -66,9 +66,9 @@ const CONFIG = {
   //  PROCESSING AIDS & CONSUMABLES
   // ----------------------------------------------------------
   materialPrices: {
-    dePerKg:       1.80,   // $ / kg  (each bag = 20 kg)
-    bagFilterEach: 12.50,  // $ / bag filter
-    toteBagEach:    8.00,  // $ / tote bag
+    dePerBag:      22.10,  // $ / bag (50 lbs = 22.68 kg per bag)
+    bagFilterEach:  3.35,  // $ / bag filter
+    toteBagEach:   12.50,  // $ / tote bag
   },
 
   // ----------------------------------------------------------
@@ -94,6 +94,4 @@ const CONFIG = {
   //  GOOGLE APPS SCRIPT WEB APP URL
   //  Paste your deployed Apps Script URL here after setup.
   // ----------------------------------------------------------
-  appsScriptUrl: "https://script.google.com/macros/s/AKfycbzL1chy1CMPpzV0lKnGg4MOhIau6ZekYBJB7TpKFGjxbW-ptpUSS-Wd6eRZvWnvrt9YBw/exec",
-
-};
+  appsScriptUrl: "https://script.google.com/macros/s/AKfycbzL1chy1CMPpzV0lKnGg4MOhIau6ZekYBJB7TpKFGjxbW-ptpUSS-Wd6eRZvWnvrt9YBw/ex
