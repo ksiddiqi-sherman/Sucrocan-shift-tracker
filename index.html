@@ -1386,8 +1386,8 @@ function updateStrip() {
   const cmtSub = document.getElementById("sv-cmt-sub");
   if (cmtEl) {
     const hasShipped = (c.totalShipped || 0) > 0;
-    cmtEl.textContent  = hasShipped ? "$" + (c.knownCostMT || 0).toFixed(2) + " / MT" : "—";
-    cmtSub.textContent = hasShipped ? "labour + equip (full cost pending)" : "enter shipped quantity";
+    cmtEl.textContent  = hasShipped ? "$" + (c.costPerMT || 0).toFixed(2) + " / MT" : "—";
+    cmtSub.textContent = hasShipped ? "labour + equip + energy + materials" : "enter shipped quantity";
     document.getElementById("strip-costmt").className = "strip-kpi" + (hasShipped ? " amber" : "");
   }
 
@@ -1416,7 +1416,7 @@ function buildSummary() {
     { label: "Total Shipped",    value: (c.totalShipped||0).toFixed(3) + " MT",                 sub: "dry MT basis (out)",        cls: "green" },
     { label: "Weight Loss",      value: (c.weightLoss||0).toFixed(3) + " MT",                   sub: (c.weightLossPct||0).toFixed(2) + "% of input", cls: (c.weightLossPct||0) > 5 ? "red" : "" },
     { label: "Downtime",         value: (document.getElementById("p-downtime")?.value||"0") + " hr", sub: "production stopped",   cls: "" },
-    { label: "Known Cost",       value: "$" + knownCost.toFixed(0),                             sub: "labour + equipment",        cls: "amber" },
+    { label: "Total Cost",        value: "$" + (c.totalCost||0).toFixed(0),                      sub: "labour + equip + energy + materials", cls: "amber" },
     { label: "Cost / MT",        value: (c.totalProduced||0) > 0 ? "$" + (c.costPerMT||0).toFixed(2) + " / MT" : "—", sub: "total cost ÷ produced", cls: "" },
   ];
 
