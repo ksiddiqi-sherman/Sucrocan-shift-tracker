@@ -691,7 +691,7 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
             <input type="number" id="e-elec" min="0" step="1" placeholder="0" oninput="updateCalcs()">
           </div>
         </div>
-        <div class="alert alert-info" style="margin-top:14px">ℹ️ Energy costs will be calculated once utility rates are configured by management.</div>
+        <div class="alert alert-info" style="margin-top:14px" id="energy-rate-info"></div>
       </div>
     </div>
   </div>
@@ -1273,13 +1273,18 @@ function handleShipFile(input, rowIdx, type) {
 // ============================================================
 function populateRateHints() {
   try {
-    const p = CONFIG.materialPrices;
+    const p  = CONFIG.materialPrices;
+    const ep = CONFIG.energyPrices;
     const deEl = document.getElementById("m-de-rate");
     const bfEl = document.getElementById("m-bf-rate");
     const tbEl = document.getElementById("m-tb-rate");
     if (deEl) deEl.textContent = `$${(p.dePerBag || p.dePerKg || 0).toFixed(2)}/bag`;
     if (bfEl) bfEl.textContent = `$${(p.bagFilterEach || 0).toFixed(2)}/each`;
     if (tbEl) tbEl.textContent = `$${(p.toteBagEach || 0).toFixed(2)}/each`;
+    const infoEl = document.getElementById("energy-rate-info");
+    if (infoEl && ep) {
+      infoEl.textContent = `ℹ️ Rates: Water $${ep.waterPerM3}/m³ · Natural Gas $${ep.naturalGasPerM3}/m³ · Electricity $${ep.electricityPerKwh}/kWh`;
+    }
   } catch(e) { console.warn("populateRateHints:", e); }
 }
 
