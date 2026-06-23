@@ -1318,27 +1318,33 @@ function updateCalcs() {
   const totalShipped  = shipRows.reduce((s, r) => s + r.dryMTBasis, 0);
   const sugarMelted   = parseFloat(document.getElementById("p-melted")?.value) || 0;
 
-  // Silo inventory change vs previous shift
+  // Silo inventory — start vs end of shift
   const prevSilos = JSON.parse(localStorage.getItem("sucrocan_prev_silos") || "{}");
-  let drySiloChangeMT = 0;
+  let startDryMT = 0, endDryMT = 0;
   (CONFIG.silos.dry || []).forEach(s => {
     const cur  = state.siloLevels[s.id] || 0;
-    const prev = prevSilos[s.id] != null ? prevSilos[s.id] : cur; // if no prev, assume no change
-    drySiloChangeMT += (cur - prev);
+    const prev = prevSilos[s.id] != null ? prevSilos[s.id] : cur;
+    startDryMT += prev;
+    endDryMT   += cur;
   });
-  let liquidSiloChangeM3 = 0;
+  let startLiquidM3 = 0, endLiquidM3 = 0;
   (CONFIG.silos.liquid || []).forEach(s => {
     const cur  = state.siloLevels[s.id] || 0;
     const prev = prevSilos[s.id] != null ? prevSilos[s.id] : cur;
-    liquidSiloChangeM3 += (cur - prev);
+    startLiquidM3 += prev;
+    endLiquidM3   += cur;
   });
   // Liquid sugar ~1.35 MT/m³ at typical Brix 65
-  const siloInventoryChangeMT = drySiloChangeMT + (liquidSiloChangeM3 * 1.35);
+  const startInventoryMT     = startDryMT + (startLiquidM3 * 1.35);
+  const endInventoryMT       = endDryMT   + (endLiquidM3   * 1.35);
+  const siloInventoryChangeMT = endInventoryMT - startInventoryMT;
 
-  const totalProduced = totalShipped + Math.max(0, siloInventoryChangeMT);
-  const costPerMT     = totalProduced > 0 ? totalCost / totalProduced : 0;
-  const weightLoss    = sugarMelted - totalShipped - siloInventoryChangeMT;
-  const weightLossPct = sugarMelted > 0 ? (weightLoss / sugarMelted) * 100 : 0;
+  const totalAvailable = sugarMelted + startInventoryMT;
+  const totalAccounted = totalShipped + endInventoryMT;
+  const totalProduced  = totalShipped + Math.max(0, siloInventoryChangeMT);
+  const costPerMT      = totalProduced > 0 ? totalCost / totalProduced : 0;
+  const weightLoss     = totalAvailable - totalAccounted;
+  const weightLossPct  = totalAvailable > 0 ? (weightLoss / totalAvailable) * 100 : 0;
 
   // update inline cost cells
   // cost columns are hidden from operators — prices configured by management later
@@ -1349,7 +1355,9 @@ function updateCalcs() {
   window._calc = { labourCost, energyCost, materialsCost, equipmentCost, totalCost,
     knownCost, knownCostMT,
     totalShipped, sugarMelted, totalProduced, costPerMT,
-    weightLoss, weightLossPct, siloInventoryChangeMT, drySiloChangeMT, liquidSiloChangeM3,
+    weightLoss, weightLossPct, siloInventoryChangeMT,
+    startInventoryMT, endInventoryMT, totalAvailable, totalAccounted,
+    startDryMT, endDryMT, startLiquidM3, endLiquidM3,
     water, gas, elec,
     deBags, bfCount, tbCount, flCount, deCost, bfCost, tbCost, flCost };
 
@@ -1428,12 +1436,16 @@ function buildSummary() {
     <tr class="total-row"><td>TOTAL COST THIS SHIFT</td><td>${fmt(c.totalCost||0)}</td></tr>`;
 
   // Weight balance
-  const siloDir = (c.siloInventoryChangeMT||0) >= 0 ? "▲ Stored in silos" : "▼ Drawn from silos";
   document.getElementById("weight-table").innerHTML = `
+    <tr style="background:var(--gray-50)"><td colspan="2" style="font-weight:700;color:var(--blue-dark);padding:6px 8px">INPUTS</td></tr>
     <tr><td>Raw Sugar Melted (IN)</td><td>${(c.sugarMelted||0).toFixed(3)} MT</td></tr>
+    <tr><td>Starting Silo Inventory</td><td>${(c.startInventoryMT||0).toFixed(3)} MT</td></tr>
+    <tr style="background:var(--gray-100);font-weight:700"><td>Total Available</td><td>${(c.totalAvailable||0).toFixed(3)} MT</td></tr>
+    <tr style="background:var(--gray-50)"><td colspan="2" style="font-weight:700;color:var(--blue-dark);padding:6px 8px">OUTPUTS</td></tr>
     <tr><td>Finished Product Shipped (OUT)</td><td>${(c.totalShipped||0).toFixed(3)} MT</td></tr>
-    <tr><td>${siloDir} (net inventory change)</td><td>${Math.abs(c.siloInventoryChangeMT||0).toFixed(3)} MT</td></tr>
-    <tr class="cost-row"><td>Weight Loss</td><td>${(c.weightLoss||0).toFixed(3)} MT (${(c.weightLossPct||0).toFixed(2)}%)</td></tr>`;
+    <tr><td>Ending Silo Inventory</td><td>${(c.endInventoryMT||0).toFixed(3)} MT</td></tr>
+    <tr style="background:var(--gray-100);font-weight:700"><td>Total Accounted</td><td>${(c.totalAccounted||0).toFixed(3)} MT</td></tr>
+    <tr style="background:#fef2f2"><td style="color:var(--red);font-weight:700">Weight Loss</td><td style="color:var(--red);font-weight:700">${(c.weightLoss||0).toFixed(3)} MT (${(c.weightLossPct||0).toFixed(2)}%)</td></tr>`;
 
   // Validation warning
   const warns = [];
