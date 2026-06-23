@@ -1417,7 +1417,7 @@ function buildSummary() {
     { label: "Weight Loss",      value: (c.weightLoss||0).toFixed(3) + " MT",                   sub: (c.weightLossPct||0).toFixed(2) + "% of input", cls: (c.weightLossPct||0) > 5 ? "red" : "" },
     { label: "Downtime",         value: (document.getElementById("p-downtime")?.value||"0") + " hr", sub: "production stopped",   cls: "" },
     { label: "Total Cost",        value: "$" + (c.totalCost||0).toFixed(0),                      sub: "labour + equip + energy + materials", cls: "amber" },
-    { label: "Cost / MT",        value: (c.totalProduced||0) > 0 ? "$" + (c.costPerMT||0).toFixed(2) + " / MT" : "—", sub: "total cost ÷ produced", cls: "" },
+    { label: "Cost / MT",        value: (c.sugarMelted||0) > 0 ? "$" + (c.costPerMT||0).toFixed(2) + " / MT" : "—", sub: "total cost ÷ raw sugar melted", cls: "" },
   ];
 
   document.getElementById("kpi-grid").innerHTML = kpiDefs.map(k =>
