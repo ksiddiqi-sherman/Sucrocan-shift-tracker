@@ -57,9 +57,9 @@ const CONFIG = {
   //  ENERGY PRICES
   // ----------------------------------------------------------
   energyPrices: {
-    waterPerM3:          0.85,   // $ / m³
-    naturalGasPerM3:     0.42,   // $ / m³
-    electricityPerKwh:   0.095,  // $ / kWh
+    waterPerM3:          5.02,    // $ / m³
+    naturalGasPerM3:     0.29,    // $ / m³
+    electricityPerKwh:   0.10717, // $ / kWh
   },
 
   // ----------------------------------------------------------
