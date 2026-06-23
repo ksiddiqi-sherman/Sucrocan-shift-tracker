@@ -478,6 +478,7 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
     </div>
   </div>
   <div id="header-right">
+    <button class="header-btn" id="load-draft-btn" onclick="restoreDraft()" style="display:none">♻️ Load Draft</button>
     <button class="header-btn" onclick="showHistory()">📊 History</button>
   </div>
 </div>
@@ -888,6 +889,7 @@ document.addEventListener("DOMContentLoaded", () => {
   addDowntimeRow();
   updateNav();
   updateCalcs();
+  checkDraftExists();
   restoreDraft();
 });
 
@@ -1623,30 +1625,43 @@ function clearDraft() {
   localStorage.removeItem("sucrocan_draft");
 }
 
+function checkDraftExists() {
+  const raw = localStorage.getItem("sucrocan_draft");
+  const btn = document.getElementById("load-draft-btn");
+  if (raw && btn) btn.style.display = "inline-flex";
+}
+
 function restoreDraft() {
   try {
     const raw = localStorage.getItem("sucrocan_draft");
-    if (!raw) return;
+    if (!raw) { showToast("No saved draft found."); return; }
     const d = JSON.parse(raw);
     if (d.date) document.getElementById("s-date").value = d.date;
-    if (d.shiftType) document.getElementById("s-type").value = d.shiftType;
+    if (d.shiftType) { document.getElementById("s-type").value = d.shiftType; updateShiftTimes(); }
     if (d.supervisor) document.getElementById("s-supervisor").value = d.supervisor;
     if (d.shiftStart) document.getElementById("s-start").value = d.shiftStart;
     if (d.shiftEnd)   document.getElementById("s-end").value   = d.shiftEnd;
     if (d.boilsProduced) document.getElementById("p-boils").value = d.boilsProduced;
     if (d.sugarMeltedMT) document.getElementById("p-melted").value = d.sugarMeltedMT;
     if (d.downtimeHours) document.getElementById("p-downtime").value = d.downtimeHours;
-    if (d.waterM3)       document.getElementById("e-water").value = d.waterM3;
-    if (d.naturalGasM3)  document.getElementById("e-gas").value   = d.naturalGasM3;
-    if (d.electricityKwh) document.getElementById("e-elec").value = d.electricityKwh;
-    if (d.deBags)   document.getElementById("m-de").value = d.deBags;
+    if (d.waterM3)        document.getElementById("e-water").value = d.waterM3;
+    if (d.naturalGasM3)   document.getElementById("e-gas").value   = d.naturalGasM3;
+    if (d.electricityKwh) document.getElementById("e-elec").value  = d.electricityKwh;
+    if (d.deBags)     document.getElementById("m-de").value = d.deBags;
     if (d.bagFilters) document.getElementById("m-bf").value = d.bagFilters;
     if (d.toteBags)   document.getElementById("m-tb").value = d.toteBags;
-    if (d.forklifts)  document.getElementById("m-fl").value = d.forklifts;
     if (d.notes)      document.getElementById("s-notes").value = d.notes;
-    showToast("♻️ Draft restored from last session.");
+    // Restore silo levels
+    if (d.siloLevels) {
+      d.siloLevels.forEach(s => {
+        state.siloLevels[s.id] = s.level || 0;
+        const inp = document.getElementById("silo-" + s.id);
+        if (inp) { inp.value = s.level || 0; updateSiloBar(s.id, s.capacity); }
+      });
+    }
+    showToast("♻️ Draft restored.");
     updateCalcs();
-  } catch {}
+  } catch(e) { showToast("Could not restore draft."); }
 }
 
 // ============================================================
