@@ -539,11 +539,11 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
           </div>
           <div class="form-group">
             <label>Shift Start</label>
-            <input type="time" id="s-start" value="06:00">
+            <input type="time" id="s-start" value="07:00">
           </div>
           <div class="form-group">
             <label>Shift End</label>
-            <input type="time" id="s-end" value="18:00">
+            <input type="time" id="s-end" value="19:00">
           </div>
           <div class="form-group">
             <label>Operating Supervisor</label>
@@ -893,8 +893,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function updateShiftTimes() {
   const t = document.getElementById("s-type").value;
-  document.getElementById("s-start").value = t === "Day" ? "06:00" : "18:00";
-  document.getElementById("s-end").value   = t === "Day" ? "18:00" : "06:00";
+  document.getElementById("s-start").value = t === "Day" ? "07:00" : "19:00";
+  document.getElementById("s-end").value   = t === "Day" ? "19:00" : "07:00";
 }
 
 // ============================================================
@@ -1273,7 +1273,7 @@ function handleShipFile(input, rowIdx, type) {
 // ============================================================
 function populateRateHints() {
   const p = CONFIG.materialPrices;
-  document.getElementById("m-de-rate").textContent = `$${p.dePerKg.toFixed(2)}/kg × 20 kg`;
+  document.getElementById("m-de-rate").textContent = `$${p.dePerBag.toFixed(2)}/bag (50 lbs)`;
   document.getElementById("m-bf-rate").textContent = `$${p.bagFilterEach.toFixed(2)}/each`;
   document.getElementById("m-tb-rate").textContent = `$${p.toteBagEach.toFixed(2)}/each`;
 }
@@ -1294,7 +1294,7 @@ function updateCalcs() {
   const mp = CONFIG.materialPrices;
 
   const energyCost    = water * ep.waterPerM3 + gas * ep.naturalGasPerM3 + elec * ep.electricityPerKwh;
-  const deCost        = deBags  * 20 * mp.dePerKg;
+  const deCost        = deBags  * mp.dePerBag;
   const bfCost        = bfCount * mp.bagFilterEach;
   const tbCost        = tbCount * mp.toteBagEach;
   const flCost        = CONFIG.forklifts.perShiftTotal;
