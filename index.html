@@ -1344,7 +1344,7 @@ function updateCalcs() {
   const totalAvailable = sugarMelted + startInventoryMT;
   const totalAccounted = totalShipped + endInventoryMT;
   const totalProduced  = totalShipped + Math.max(0, siloInventoryChangeMT);
-  const costPerMT      = totalProduced > 0 ? totalCost / totalProduced : 0;
+  const costPerMT      = sugarMelted > 0 ? totalCost / sugarMelted : 0;
   const weightLoss     = totalAvailable - totalAccounted;
   const weightLossPct  = totalAvailable > 0 ? (weightLoss / totalAvailable) * 100 : 0;
 
