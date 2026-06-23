@@ -1125,7 +1125,7 @@ function removeShipRow(i) {
 }
 
 function updateShipTotals() {
-  const total = getShipRows().reduce((s, r) => s + r.dryMT, 0);
+  const total = getShipRows().reduce((s, r) => s + r.dryMTBasis, 0);
   document.getElementById("ship-total-mt").textContent = total.toFixed(3) + " MT";
 }
 
@@ -1272,10 +1272,15 @@ function handleShipFile(input, rowIdx, type) {
 //  ENERGY BREAKDOWN TABLE
 // ============================================================
 function populateRateHints() {
-  const p = CONFIG.materialPrices;
-  document.getElementById("m-de-rate").textContent = `$${p.dePerBag.toFixed(2)}/bag (50 lbs)`;
-  document.getElementById("m-bf-rate").textContent = `$${p.bagFilterEach.toFixed(2)}/each`;
-  document.getElementById("m-tb-rate").textContent = `$${p.toteBagEach.toFixed(2)}/each`;
+  try {
+    const p = CONFIG.materialPrices;
+    const deEl = document.getElementById("m-de-rate");
+    const bfEl = document.getElementById("m-bf-rate");
+    const tbEl = document.getElementById("m-tb-rate");
+    if (deEl) deEl.textContent = `$${(p.dePerBag || p.dePerKg || 0).toFixed(2)}/bag`;
+    if (bfEl) bfEl.textContent = `$${(p.bagFilterEach || 0).toFixed(2)}/each`;
+    if (tbEl) tbEl.textContent = `$${(p.toteBagEach || 0).toFixed(2)}/each`;
+  } catch(e) { console.warn("populateRateHints:", e); }
 }
 
 
@@ -1397,7 +1402,7 @@ function buildSummary() {
     { label: "Weight Loss",      value: (c.weightLoss||0).toFixed(3) + " MT",                   sub: (c.weightLossPct||0).toFixed(2) + "% of input", cls: (c.weightLossPct||0) > 5 ? "red" : "" },
     { label: "Downtime",         value: (document.getElementById("p-downtime")?.value||"0") + " hr", sub: "production stopped",   cls: "" },
     { label: "Known Cost",       value: "$" + knownCost.toFixed(0),                             sub: "labour + equipment",        cls: "amber" },
-    { label: "Cost / MT",        value: "Pending",                                              sub: "full prices not yet set",   cls: "" },
+    { label: "Cost / MT",        value: (c.totalProduced||0) > 0 ? "$" + (c.costPerMT||0).toFixed(2) + " / MT" : "—", sub: "total cost ÷ produced", cls: "" },
   ];
 
   document.getElementById("kpi-grid").innerHTML = kpiDefs.map(k =>
@@ -1413,9 +1418,9 @@ function buildSummary() {
   tbody.innerHTML = `
     <tr><td>Labour (staff on shift × 12 hr)</td><td>${fmt(c.labourCost||0)}</td></tr>
     <tr><td>Rented Equipment (5 forklifts)</td><td>${fmt(c.equipmentCost||0)}</td></tr>
-    <tr><td style="color:var(--gray-600)">Energy (Water + Gas + Elec)</td><td><span class="badge badge-yellow">Price pending</span></td></tr>
-    <tr><td style="color:var(--gray-600)">Processing Aids &amp; Consumables</td><td><span class="badge badge-yellow">Price pending</span></td></tr>
-    <tr class="total-row"><td>KNOWN COST THIS SHIFT</td><td>${fmt(knownCost)}</td></tr>`;
+    <tr><td>Energy (Water + Gas + Elec)</td><td>${fmt(c.energyCost||0)}</td></tr>
+    <tr><td>Processing Aids &amp; Consumables</td><td>${fmt(c.materialsCost||0)}</td></tr>
+    <tr class="total-row"><td>TOTAL COST THIS SHIFT</td><td>${fmt(c.totalCost||0)}</td></tr>`;
 
   // Weight balance
   const siloDir = (c.siloInventoryChangeMT||0) >= 0 ? "▲ Stored in silos" : "▼ Drawn from silos";
