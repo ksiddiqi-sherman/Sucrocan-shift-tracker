@@ -94,4 +94,6 @@ const CONFIG = {
   //  GOOGLE APPS SCRIPT WEB APP URL
   //  Paste your deployed Apps Script URL here after setup.
   // ----------------------------------------------------------
-  appsScriptUrl: "https://script.google.com/macros/s/AKfycbzL1chy1CMPpzV0lKnGg4MOhIau6ZekYBJB7TpKFGjxbW-ptpUSS-Wd6eRZvWnvrt9YBw/ex
+  appsScriptUrl: "https://script.google.com/macros/s/AKfycbzL1chy1CMPpzV0lKnGg4MOhIau6ZekYBJB7TpKFGjxbW-ptpUSS-Wd6eRZvWnvrt9YBw/exec",
+
+};
