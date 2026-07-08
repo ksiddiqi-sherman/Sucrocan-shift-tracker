@@ -490,15 +490,6 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
 
 <!-- ── Live shift summary strip ── -->
 <div id="summary-strip">
-  <div class="strip-kpi" id="strip-weightloss">
-    <div class="strip-icon">⚖️</div>
-    <div>
-      <div class="strip-label">Weight Loss</div>
-      <div class="strip-value" id="sv-wl">— MT</div>
-      <div class="strip-sub" id="sv-wl-pct">—% of input</div>
-    </div>
-  </div>
-  <div class="strip-divider"></div>
   <div class="strip-kpi" id="strip-costmt">
     <div class="strip-icon">💰</div>
     <div>
@@ -778,17 +769,6 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header"><span class="icon">⚖️</span> Weight Balance</div>
-      <div class="card-body">
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr><th>Description</th><th>MT</th></tr></thead>
-            <tbody id="weight-table"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
 
     <div id="submit-area" style="text-align:center;padding:20px 0;">
       <div class="alert alert-warn" id="submit-warn" style="display:none"></div>
@@ -809,7 +789,7 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
             <thead><tr>
               <th>Date</th><th>Shift</th><th>Supervisor</th>
               <th>Boils</th><th>Melted MT</th><th>Shipped MT</th>
-              <th>Downtime hr</th><th>$/MT</th><th>Total Cost</th><th>Wt Loss %</th>
+              <th>Downtime hr</th><th>$/MT</th><th>Total Cost</th>
             </tr></thead>
             <tbody id="history-tbody"></tbody>
           </table>
@@ -1370,18 +1350,7 @@ function updateStrip() {
   const c  = window._calc || {};
   const dt = parseFloat(document.getElementById("p-downtime")?.value) || 0;
 
-  // ── Weight loss ──
-  const wlEl    = document.getElementById("sv-wl");
-  const wlPctEl = document.getElementById("sv-wl-pct");
-  const wlBox   = document.getElementById("strip-weightloss");
-  if (wlEl) {
-    const hasData = (c.sugarMelted || 0) > 0;
-    wlEl.textContent    = hasData ? (c.weightLoss || 0).toFixed(2) + " MT" : "— MT";
-    wlPctEl.textContent = hasData ? (c.weightLossPct || 0).toFixed(2) + "% of input" : "enter melted & shipped";
-    wlBox.className = "strip-kpi" + (!hasData ? "" : (c.weightLossPct||0) > 5 ? " warn" : " ok");
-  }
-
-  // ── Cost / MT (known costs only) ──
+  // ── Cost / MT ──
   const cmtEl  = document.getElementById("sv-cmt");
   const cmtSub = document.getElementById("sv-cmt-sub");
   if (cmtEl) {
@@ -1414,7 +1383,6 @@ function buildSummary() {
     { label: "Boils Produced",   value: document.getElementById("p-boils")?.value || "0",       sub: "boils this shift",          cls: "" },
     { label: "Sugar Melted",     value: (c.sugarMelted||0).toFixed(2) + " MT",                  sub: "raw sugar in",              cls: "" },
     { label: "Total Shipped",    value: (c.totalShipped||0).toFixed(3) + " MT",                 sub: "dry MT basis (out)",        cls: "green" },
-    { label: "Weight Loss",      value: (c.weightLoss||0).toFixed(3) + " MT",                   sub: (c.weightLossPct||0).toFixed(2) + "% of input", cls: (c.weightLossPct||0) > 5 ? "red" : "" },
     { label: "Downtime",         value: (document.getElementById("p-downtime")?.value||"0") + " hr", sub: "production stopped",   cls: "" },
     { label: "Total Cost",        value: "$" + (c.totalCost||0).toFixed(0),                      sub: "labour + equip + energy + materials", cls: "amber" },
     { label: "Cost / MT",        value: (c.sugarMelted||0) > 0 ? "$" + (c.costPerMT||0).toFixed(2) + " / MT" : "—", sub: "total cost ÷ raw sugar melted", cls: "" },
@@ -1437,17 +1405,6 @@ function buildSummary() {
     <tr><td>Processing Aids &amp; Consumables</td><td>${fmt(c.materialsCost||0)}</td></tr>
     <tr class="total-row"><td>TOTAL COST THIS SHIFT</td><td>${fmt(c.totalCost||0)}</td></tr>`;
 
-  // Weight balance
-  document.getElementById("weight-table").innerHTML = `
-    <tr style="background:var(--gray-50)"><td colspan="2" style="font-weight:700;color:var(--blue-dark);padding:6px 8px">INPUTS</td></tr>
-    <tr><td>Raw Sugar Melted (IN)</td><td>${(c.sugarMelted||0).toFixed(3)} MT</td></tr>
-    <tr><td>Starting Silo Inventory</td><td>${(c.startInventoryMT||0).toFixed(3)} MT</td></tr>
-    <tr style="background:var(--gray-100);font-weight:700"><td>Total Available</td><td>${(c.totalAvailable||0).toFixed(3)} MT</td></tr>
-    <tr style="background:var(--gray-50)"><td colspan="2" style="font-weight:700;color:var(--blue-dark);padding:6px 8px">OUTPUTS</td></tr>
-    <tr><td>Finished Product Shipped (OUT)</td><td>${(c.totalShipped||0).toFixed(3)} MT</td></tr>
-    <tr><td>Ending Silo Inventory</td><td>${(c.endInventoryMT||0).toFixed(3)} MT</td></tr>
-    <tr style="background:var(--gray-100);font-weight:700"><td>Total Accounted</td><td>${(c.totalAccounted||0).toFixed(3)} MT</td></tr>
-    <tr style="background:#fef2f2"><td style="color:var(--red);font-weight:700">Weight Loss</td><td style="color:var(--red);font-weight:700">${(c.weightLoss||0).toFixed(3)} MT (${(c.weightLossPct||0).toFixed(2)}%)</td></tr>`;
 
   // Validation warning
   const warns = [];
@@ -1591,7 +1548,6 @@ function showHistory() {
             <td>${(+r.Downtime_Hours||0).toFixed(2)}</td>
             <td><strong>${(+r.Cost_Per_MT||0).toFixed(2)}</strong></td>
             <td>${fmt(+r.Total_Cost||0)}</td>
-            <td class="${+r.Weight_Loss_Pct > 5 ? 'badge-red' : ''}">${(+r.Weight_Loss_Pct||0).toFixed(2)}%</td>
           </tr>`).join("");
       })
       .catch(() => {
