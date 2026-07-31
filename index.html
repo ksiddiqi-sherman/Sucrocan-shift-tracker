@@ -625,8 +625,48 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
     </div>
   </div>
 
-  <!-- STEP 3 — SHIPPING -->
+  <!-- STEP 3 — BAGGING -->
   <div class="step-page" id="step-2"><span id="section-2" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
+    <div class="card">
+      <div class="card-header"><span class="icon">📦</span> Bagging</div>
+      <div class="card-body">
+        <div class="alert alert-info">ℹ️ To be filled in by the shift supervisor — quantity packaged this shift.</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Product</th><th>Unit</th><th>Qty</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>LC 1MT</strong></td>
+                <td>Totes</td>
+                <td><input type="number" id="bg-lc-1mt" min="0" placeholder="0" oninput="updateCalcs()"></td>
+              </tr>
+              <tr>
+                <td><strong>HC 1MT</strong></td>
+                <td>Totes</td>
+                <td><input type="number" id="bg-hc-1mt" min="0" placeholder="0" oninput="updateCalcs()"></td>
+              </tr>
+              <tr>
+                <td><strong>HC 20kg</strong></td>
+                <td>Bags</td>
+                <td><input type="number" id="bg-hc-20kg" min="0" placeholder="0" oninput="updateCalcs()"></td>
+              </tr>
+              <tr>
+                <td><strong>LC 20kg</strong></td>
+                <td>Bags</td>
+                <td><input type="number" id="bg-lc-20kg" min="0" placeholder="0" oninput="updateCalcs()"></td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="cost-row"><td colspan="2">Total Bagged</td><td id="bagging-total-cell">0.000 MT</td></tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4 — SHIPPING -->
+  <div class="step-page" id="step-3"><span id="section-3" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
     <div class="card">
       <div class="card-header"><span class="icon">🚛</span> Outbound Shipments</div>
       <div class="card-body">
@@ -656,16 +696,16 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
     </div>
   </div>
 
-  <!-- STEP 4 — SILO INVENTORY -->
-  <div class="step-page" id="step-3"><span id="section-3" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
+  <!-- STEP 5 — SILO INVENTORY -->
+  <div class="step-page" id="step-4"><span id="section-4" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
     <div class="card">
       <div class="card-header"><span class="icon">🏗️</span> Silo Inventory — End of Shift Levels</div>
       <div class="card-body" id="silo-body"></div>
     </div>
   </div>
 
-  <!-- STEP 5 — ENERGY -->
-  <div class="step-page" id="step-4"><span id="section-4" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
+  <!-- STEP 6 — ENERGY -->
+  <div class="step-page" id="step-5"><span id="section-5" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
     <div class="card">
       <div class="card-header"><span class="icon">⚡</span> Energy Consumption</div>
       <div class="card-body">
@@ -688,8 +728,8 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
     </div>
   </div>
 
-  <!-- STEP 6 — MATERIALS -->
-  <div class="step-page" id="step-5"><span id="section-5" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
+  <!-- STEP 7 — MATERIALS -->
+  <div class="step-page" id="step-6"><span id="section-6" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
     <div class="card">
       <div class="card-header"><span class="icon">🧪</span> Processing Aids &amp; Consumables</div>
       <div class="card-body">
@@ -753,8 +793,8 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
     </div>
   </div>
 
-  <!-- STEP 7 — SUMMARY & SUBMIT -->
-  <div class="step-page" id="step-6"><span id="section-6" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
+  <!-- STEP 8 — SUMMARY & SUBMIT -->
+  <div class="step-page" id="step-7"><span id="section-7" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
     <div class="kpi-grid" id="kpi-grid"></div>
 
     <div class="card">
@@ -833,6 +873,7 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
 const STEPS = [
   { title: "Shift Info",   icon: "📋" },
   { title: "Production",  icon: "🏭" },
+  { title: "Bagging",     icon: "📦" },
   { title: "Shipping",    icon: "🚛" },
   { title: "Silos",       icon: "🏗️"  },
   { title: "Energy",      icon: "⚡" },
@@ -1282,6 +1323,14 @@ function updateCalcs() {
   const bfCount = parseFloat(document.getElementById("m-bf")?.value) || 0;
   const tbCount = parseFloat(document.getElementById("m-tb")?.value) || 0;
 
+  const bgLC1MT  = parseFloat(document.getElementById("bg-lc-1mt")?.value)  || 0;
+  const bgHC1MT  = parseFloat(document.getElementById("bg-hc-1mt")?.value)  || 0;
+  const bgHC20kg = parseFloat(document.getElementById("bg-hc-20kg")?.value) || 0;
+  const bgLC20kg = parseFloat(document.getElementById("bg-lc-20kg")?.value) || 0;
+  const totalBaggedMT = bgLC1MT * 1 + bgHC1MT * 1 + bgHC20kg * 0.02 + bgLC20kg * 0.02;
+  const baggingTotalCell = document.getElementById("bagging-total-cell");
+  if (baggingTotalCell) baggingTotalCell.textContent = totalBaggedMT.toFixed(3) + " MT";
+
   const ep = CONFIG.energyPrices;
   const mp = CONFIG.materialPrices;
 
@@ -1341,7 +1390,8 @@ function updateCalcs() {
     startInventoryMT, endInventoryMT, totalAvailable, totalAccounted,
     startDryMT, endDryMT, startLiquidM3, endLiquidM3,
     water, gas, elec,
-    deBags, bfCount, tbCount, flCount, deCost, bfCost, tbCost, flCost };
+    deBags, bfCount, tbCount, flCount, deCost, bfCost, tbCost, flCost,
+    bgLC1MT, bgHC1MT, bgHC20kg, bgLC20kg, totalBaggedMT };
 
   updateStrip();
 }
@@ -1383,6 +1433,7 @@ function buildSummary() {
     { label: "Boils Produced",   value: document.getElementById("p-boils")?.value || "0",       sub: "boils this shift",          cls: "" },
     { label: "Sugar Melted",     value: (c.sugarMelted||0).toFixed(2) + " MT",                  sub: "raw sugar in",              cls: "" },
     { label: "Total Shipped",    value: (c.totalShipped||0).toFixed(3) + " MT",                 sub: "dry MT basis (out)",        cls: "green" },
+    { label: "Total Bagged",     value: (c.totalBaggedMT||0).toFixed(3) + " MT",                sub: "LC/HC totes + bags packaged", cls: "" },
     { label: "Downtime",         value: (document.getElementById("p-downtime")?.value||"0") + " hr", sub: "production stopped",   cls: "" },
     { label: "Total Cost",        value: "$" + (c.totalCost||0).toFixed(0),                      sub: "labour + equip + energy + materials", cls: "amber" },
     { label: "Cost / MT",        value: (c.sugarMelted||0) > 0 ? "$" + (c.costPerMT||0).toFixed(2) + " / MT" : "—", sub: "total cost ÷ raw sugar melted", cls: "" },
@@ -1494,6 +1545,11 @@ function buildPayload(c) {
     sugarMeltedMT: parseFloat(document.getElementById("p-melted")?.value) || 0,
     totalShippedDryMT: c.totalShipped || 0,
     downtimeHours:  parseFloat(document.getElementById("p-downtime")?.value) || 0,
+    baggingLC1MT:  c.bgLC1MT  || 0,
+    baggingHC1MT:  c.bgHC1MT  || 0,
+    baggingHC20kg: c.bgHC20kg || 0,
+    baggingLC20kg: c.bgLC20kg || 0,
+    totalBaggedMT: c.totalBaggedMT || 0,
     waterM3:        c.water || 0,
     naturalGasM3:   c.gas   || 0,
     electricityKwh: c.elec  || 0,
@@ -1603,6 +1659,10 @@ function restoreDraft() {
     if (d.waterM3)        document.getElementById("e-water").value = d.waterM3;
     if (d.naturalGasM3)   document.getElementById("e-gas").value   = d.naturalGasM3;
     if (d.electricityKwh) document.getElementById("e-elec").value  = d.electricityKwh;
+    if (d.baggingLC1MT)  document.getElementById("bg-lc-1mt").value  = d.baggingLC1MT;
+    if (d.baggingHC1MT)  document.getElementById("bg-hc-1mt").value  = d.baggingHC1MT;
+    if (d.baggingHC20kg) document.getElementById("bg-hc-20kg").value = d.baggingHC20kg;
+    if (d.baggingLC20kg) document.getElementById("bg-lc-20kg").value = d.baggingLC20kg;
     if (d.deBags)     document.getElementById("m-de").value = d.deBags;
     if (d.bagFilters) document.getElementById("m-bf").value = d.bagFilters;
     if (d.toteBags)   document.getElementById("m-tb").value = d.toteBags;
