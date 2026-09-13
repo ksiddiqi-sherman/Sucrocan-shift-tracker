@@ -575,6 +575,7 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
           <div class="form-group">
             <label>Number of Boils Produced</label>
             <input type="number" id="p-boils" min="0" placeholder="0" oninput="updateCalcs()">
+            <span class="form-hint">Total across all pans this shift</span>
           </div>
           <div class="form-group">
             <label>Downtime – Hours Stopped</label>
@@ -582,6 +583,36 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
             <span class="form-hint">Total hours production was stopped this shift</span>
           </div>
         </div>
+
+        <hr class="section-divider">
+        <label style="font-weight:600;color:var(--navy,#0d2b4e);font-size:.85rem;display:block;margin-bottom:10px">Boils by Pan</label>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Pan 1</label>
+            <input type="number" id="p-boils-pan1" min="0" placeholder="0" oninput="updateCalcs()">
+          </div>
+          <div class="form-group">
+            <label>Pan 2</label>
+            <input type="number" id="p-boils-pan2" min="0" placeholder="0" oninput="updateCalcs()">
+          </div>
+          <div class="form-group">
+            <label>Pan 5</label>
+            <input type="number" id="p-boils-pan5" min="0" placeholder="0" oninput="updateCalcs()">
+          </div>
+          <div class="form-group">
+            <label>Pan 6</label>
+            <input type="number" id="p-boils-pan6" min="0" placeholder="0" oninput="updateCalcs()">
+          </div>
+          <div class="form-group">
+            <label>Recovery Pan 1</label>
+            <input type="number" id="p-boils-rp1" min="0" placeholder="0" oninput="updateCalcs()">
+          </div>
+          <div class="form-group">
+            <label>Recovery Pan 2</label>
+            <input type="number" id="p-boils-rp2" min="0" placeholder="0" oninput="updateCalcs()">
+          </div>
+        </div>
+        <span class="form-hint" id="p-boils-pan-sum">Pan total: 0</span>
       </div>
     </div>
 
@@ -593,6 +624,16 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
             <label>Total Raw Sugar Melted (MT)</label>
             <input type="number" id="p-melted" min="0" step="0.01" placeholder="0.00" oninput="updateCalcs()">
             <span class="form-hint">Read from loader totalizer — enter value from photo</span>
+          </div>
+          <div class="form-group">
+            <label>Other Sugar Used in Operation (m³)</label>
+            <input type="number" id="p-other-sugar" min="0" step="0.01" placeholder="0.00" oninput="updateCalcs()">
+            <span class="form-hint">Sugar other than raw melt used this shift</span>
+          </div>
+          <div class="form-group">
+            <label>Final Molasses Sent (m³)</label>
+            <input type="number" id="p-molasses-sent" min="0" step="0.01" placeholder="0.00" oninput="updateCalcs()">
+            <span class="form-hint">Volume of final molasses sent out this shift</span>
           </div>
         </div>
         <hr class="section-divider">
@@ -1349,6 +1390,17 @@ function updateCalcs() {
   const totalShipped  = shipRows.reduce((s, r) => s + r.dryMTBasis, 0);
   const sugarMelted   = parseFloat(document.getElementById("p-melted")?.value) || 0;
 
+  // Boils by pan — show running total so it can be checked against the shift total
+  const panIds   = ["p-boils-pan1","p-boils-pan2","p-boils-pan5","p-boils-pan6","p-boils-rp1","p-boils-rp2"];
+  const panSum   = panIds.reduce((s, id) => s + (parseInt(document.getElementById(id)?.value) || 0), 0);
+  const boilsTot = parseInt(document.getElementById("p-boils")?.value) || 0;
+  const panHint  = document.getElementById("p-boils-pan-sum");
+  if (panHint) {
+    const mismatch = panSum > 0 && boilsTot > 0 && panSum !== boilsTot;
+    panHint.textContent = "Pan total: " + panSum + (mismatch ? "  ⚠️ does not match Number of Boils Produced (" + boilsTot + ")" : "");
+    panHint.style.color = mismatch ? "#b45309" : "";
+  }
+
   // Silo inventory — start vs end of shift
   const prevSilos = JSON.parse(localStorage.getItem("sucrocan_prev_silos") || "{}");
   let startDryMT = 0, endDryMT = 0;
@@ -1542,7 +1594,15 @@ function buildPayload(c) {
     shiftStart:  document.getElementById("s-start")?.value,
     shiftEnd:    document.getElementById("s-end")?.value,
     boilsProduced: parseInt(document.getElementById("p-boils")?.value) || 0,
+    boilsPan1:    parseInt(document.getElementById("p-boils-pan1")?.value) || 0,
+    boilsPan2:    parseInt(document.getElementById("p-boils-pan2")?.value) || 0,
+    boilsPan5:    parseInt(document.getElementById("p-boils-pan5")?.value) || 0,
+    boilsPan6:    parseInt(document.getElementById("p-boils-pan6")?.value) || 0,
+    boilsRecPan1: parseInt(document.getElementById("p-boils-rp1")?.value) || 0,
+    boilsRecPan2: parseInt(document.getElementById("p-boils-rp2")?.value) || 0,
     sugarMeltedMT: parseFloat(document.getElementById("p-melted")?.value) || 0,
+    otherSugarM3:     parseFloat(document.getElementById("p-other-sugar")?.value) || 0,
+    finalMolassesM3:  parseFloat(document.getElementById("p-molasses-sent")?.value) || 0,
     totalShippedDryMT: c.totalShipped || 0,
     downtimeHours:  parseFloat(document.getElementById("p-downtime")?.value) || 0,
     baggingLC1MT:  c.bgLC1MT  || 0,
@@ -1654,7 +1714,15 @@ function restoreDraft() {
     if (d.shiftStart) document.getElementById("s-start").value = d.shiftStart;
     if (d.shiftEnd)   document.getElementById("s-end").value   = d.shiftEnd;
     if (d.boilsProduced) document.getElementById("p-boils").value = d.boilsProduced;
+    if (d.boilsPan1)    document.getElementById("p-boils-pan1").value = d.boilsPan1;
+    if (d.boilsPan2)    document.getElementById("p-boils-pan2").value = d.boilsPan2;
+    if (d.boilsPan5)    document.getElementById("p-boils-pan5").value = d.boilsPan5;
+    if (d.boilsPan6)    document.getElementById("p-boils-pan6").value = d.boilsPan6;
+    if (d.boilsRecPan1) document.getElementById("p-boils-rp1").value = d.boilsRecPan1;
+    if (d.boilsRecPan2) document.getElementById("p-boils-rp2").value = d.boilsRecPan2;
     if (d.sugarMeltedMT) document.getElementById("p-melted").value = d.sugarMeltedMT;
+    if (d.otherSugarM3)    document.getElementById("p-other-sugar").value   = d.otherSugarM3;
+    if (d.finalMolassesM3) document.getElementById("p-molasses-sent").value = d.finalMolassesM3;
     if (d.downtimeHours) document.getElementById("p-downtime").value = d.downtimeHours;
     if (d.waterM3)        document.getElementById("e-water").value = d.waterM3;
     if (d.naturalGasM3)   document.getElementById("e-gas").value   = d.naturalGasM3;
