@@ -1,5 +1,6 @@
-const CACHE = "sucrocan-v3";
+const CACHE = "sucrocan-v5";
 
+// Cache everything except config.js — config must always load fresh
 const STATIC = [
   "./index.html",
   "./manifest.json",
@@ -22,6 +23,7 @@ self.addEventListener("activate", e => {
 });
 
 self.addEventListener("fetch", e => {
+  // Always fetch config.js fresh from network — never serve from cache
   if (e.request.url.includes("config.js")) {
     e.respondWith(fetch(e.request));
     return;
