@@ -479,6 +479,7 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
   </div>
   <div id="header-right">
     <button class="header-btn" id="load-draft-btn" onclick="restoreDraft()" style="display:none">♻️ Load Draft</button>
+    <button class="header-btn" onclick="showInventory()">📦 Inventory</button>
     <button class="header-btn" onclick="showHistory()">📊 History</button>
   </div>
 </div>
@@ -666,87 +667,16 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
     </div>
   </div>
 
-  <!-- STEP 3 — BAGGING -->
+  <!-- STEP 3 — SILO INVENTORY -->
   <div class="step-page" id="step-2"><span id="section-2" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
-    <div class="card">
-      <div class="card-header"><span class="icon">📦</span> Bagging</div>
-      <div class="card-body">
-        <div class="alert alert-info">ℹ️ To be filled in by the shift supervisor — quantity packaged this shift.</div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr><th>Product</th><th>Unit</th><th>Qty</th></tr></thead>
-            <tbody>
-              <tr>
-                <td><strong>LC 1MT</strong></td>
-                <td>Totes</td>
-                <td><input type="number" id="bg-lc-1mt" min="0" placeholder="0" oninput="updateCalcs()"></td>
-              </tr>
-              <tr>
-                <td><strong>HC 1MT</strong></td>
-                <td>Totes</td>
-                <td><input type="number" id="bg-hc-1mt" min="0" placeholder="0" oninput="updateCalcs()"></td>
-              </tr>
-              <tr>
-                <td><strong>HC 20kg</strong></td>
-                <td>Bags</td>
-                <td><input type="number" id="bg-hc-20kg" min="0" placeholder="0" oninput="updateCalcs()"></td>
-              </tr>
-              <tr>
-                <td><strong>LC 20kg</strong></td>
-                <td>Bags</td>
-                <td><input type="number" id="bg-lc-20kg" min="0" placeholder="0" oninput="updateCalcs()"></td>
-              </tr>
-            </tbody>
-            <tfoot>
-              <tr class="cost-row"><td colspan="2">Total Bagged</td><td id="bagging-total-cell">0.000 MT</td></tr>
-            </tfoot>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 4 — SHIPPING -->
-  <div class="step-page" id="step-3"><span id="section-3" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
-    <div class="card">
-      <div class="card-header"><span class="icon">🚛</span> Outbound Shipments</div>
-      <div class="card-body">
-        <div class="alert alert-info">
-          ℹ️ <strong>Liquid loads:</strong> Dry MT = Gross Weight × (Brix ÷ 100) &nbsp;|&nbsp;
-          <strong>Bulk sugar loads:</strong> Dry MT = Scale Weight
-        </div>
-        <div class="tbl-wrap">
-          <table id="ship-table">
-            <thead><tr>
-              <th>#</th><th>Load Type</th><th>Customer</th>
-              <th>Scale Ticket #</th>
-              <th>Gross Wt (MT)</th><th>Brix %</th>
-              <th>Dry MT Basis</th>
-              <th>Scale Ticket</th><th>COA</th><th></th>
-            </tr></thead>
-            <tbody id="ship-tbody"></tbody>
-          </table>
-        </div>
-        <button class="add-row-btn" onclick="addShipRow()">＋ Add Load</button>
-        <hr class="section-divider">
-        <div style="display:flex;justify-content:flex-end;gap:24px;">
-          <div><span style="font-size:.8rem;color:var(--gray-600);">TOTAL SHIPPED (Dry MT)</span></div>
-          <div><strong id="ship-total-mt">0.000 MT</strong></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- STEP 5 — SILO INVENTORY -->
-  <div class="step-page" id="step-4"><span id="section-4" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
     <div class="card">
       <div class="card-header"><span class="icon">🏗️</span> Silo Inventory — End of Shift Levels</div>
       <div class="card-body" id="silo-body"></div>
     </div>
   </div>
 
-  <!-- STEP 6 — ENERGY -->
-  <div class="step-page" id="step-5"><span id="section-5" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
+  <!-- STEP 4 — ENERGY -->
+  <div class="step-page" id="step-3"><span id="section-3" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
     <div class="card">
       <div class="card-header"><span class="icon">⚡</span> Energy Consumption</div>
       <div class="card-body">
@@ -769,8 +699,8 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
     </div>
   </div>
 
-  <!-- STEP 7 — MATERIALS -->
-  <div class="step-page" id="step-6"><span id="section-6" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
+  <!-- STEP 5 — MATERIALS -->
+  <div class="step-page" id="step-4"><span id="section-4" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
     <div class="card">
       <div class="card-header"><span class="icon">🧪</span> Processing Aids &amp; Consumables</div>
       <div class="card-body">
@@ -834,8 +764,8 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
     </div>
   </div>
 
-  <!-- STEP 8 — SUMMARY & SUBMIT -->
-  <div class="step-page" id="step-7"><span id="section-7" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
+  <!-- STEP 6 — SUMMARY & SUBMIT -->
+  <div class="step-page" id="step-5"><span id="section-5" style="display:block;height:0;margin-top:-110px;padding-top:110px;pointer-events:none"></span>
     <div class="kpi-grid" id="kpi-grid"></div>
 
     <div class="card">
@@ -856,6 +786,17 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
       <button class="btn btn-success" style="font-size:1rem;padding:14px 40px;" onclick="submitReport()">
         ✅ Submit Shift Report to Google Sheets
       </button>
+    </div>
+  </div>
+
+  <!-- INVENTORY -->
+  <div id="inventory-section" style="display:none">
+    <div class="card">
+      <div class="card-header"><span class="icon">📦</span> Current Inventory — End of Last Shift</div>
+      <div class="card-body" id="inventory-body"></div>
+    </div>
+    <div style="padding:10px 0;">
+      <button class="btn btn-outline" onclick="closeInventory()">← Back to Form</button>
     </div>
   </div>
 
@@ -914,8 +855,6 @@ table input:focus, table select:focus { outline: none; border-color: var(--blue-
 const STEPS = [
   { title: "Shift Info",   icon: "📋" },
   { title: "Production",  icon: "🏭" },
-  { title: "Bagging",     icon: "📦" },
-  { title: "Shipping",    icon: "🚛" },
   { title: "Silos",       icon: "🏗️"  },
   { title: "Energy",      icon: "⚡" },
   { title: "Materials",   icon: "🧪" },
@@ -947,7 +886,6 @@ document.addEventListener("DOMContentLoaded", () => {
   buildLabourTable();
   buildSiloSection();
   populateRateHints();
-  addShipRow();
   addDowntimeRow();
   updateNav();
   updateCalcs();
@@ -1014,8 +952,6 @@ const LABOUR_ROLES = [
   { key: "refineryOperator",    label: "Refinery Operator"     },
   { key: "qualityControlTech",  label: "Quality Control Tech"  },
   { key: "rawSugarLoader",      label: "Raw Sugar Loader"      },
-  { key: "shipper1",            label: "Shipper 1"             },
-  { key: "shipper2",            label: "Shipper 2"             },
   { key: "maintenanceTech1",    label: "Maintenance Tech 1"    },
   { key: "maintenanceTech2",    label: "Maintenance Tech 2"    },
 ];
@@ -1189,8 +1125,10 @@ function removeShipRow(i) {
 }
 
 function updateShipTotals() {
+  const el = document.getElementById("ship-total-mt");
+  if (!el) return;
   const total = getShipRows().reduce((s, r) => s + r.dryMTBasis, 0);
-  document.getElementById("ship-total-mt").textContent = total.toFixed(3) + " MT";
+  el.textContent = total.toFixed(3) + " MT";
 }
 
 function getShipRows() {
@@ -1364,14 +1302,6 @@ function updateCalcs() {
   const bfCount = parseFloat(document.getElementById("m-bf")?.value) || 0;
   const tbCount = parseFloat(document.getElementById("m-tb")?.value) || 0;
 
-  const bgLC1MT  = parseFloat(document.getElementById("bg-lc-1mt")?.value)  || 0;
-  const bgHC1MT  = parseFloat(document.getElementById("bg-hc-1mt")?.value)  || 0;
-  const bgHC20kg = parseFloat(document.getElementById("bg-hc-20kg")?.value) || 0;
-  const bgLC20kg = parseFloat(document.getElementById("bg-lc-20kg")?.value) || 0;
-  const totalBaggedMT = bgLC1MT * 1 + bgHC1MT * 1 + bgHC20kg * 0.02 + bgLC20kg * 0.02;
-  const baggingTotalCell = document.getElementById("bagging-total-cell");
-  if (baggingTotalCell) baggingTotalCell.textContent = totalBaggedMT.toFixed(3) + " MT";
-
   const ep = CONFIG.energyPrices;
   const mp = CONFIG.materialPrices;
 
@@ -1442,8 +1372,7 @@ function updateCalcs() {
     startInventoryMT, endInventoryMT, totalAvailable, totalAccounted,
     startDryMT, endDryMT, startLiquidM3, endLiquidM3,
     water, gas, elec,
-    deBags, bfCount, tbCount, flCount, deCost, bfCost, tbCost, flCost,
-    bgLC1MT, bgHC1MT, bgHC20kg, bgLC20kg, totalBaggedMT };
+    deBags, bfCount, tbCount, flCount, deCost, bfCost, tbCost, flCost };
 
   updateStrip();
 }
@@ -1485,7 +1414,6 @@ function buildSummary() {
     { label: "Boils Produced",   value: document.getElementById("p-boils")?.value || "0",       sub: "boils this shift",          cls: "" },
     { label: "Sugar Melted",     value: (c.sugarMelted||0).toFixed(2) + " MT",                  sub: "raw sugar in",              cls: "" },
     { label: "Total Shipped",    value: (c.totalShipped||0).toFixed(3) + " MT",                 sub: "dry MT basis (out)",        cls: "green" },
-    { label: "Total Bagged",     value: (c.totalBaggedMT||0).toFixed(3) + " MT",                sub: "LC/HC totes + bags packaged", cls: "" },
     { label: "Downtime",         value: (document.getElementById("p-downtime")?.value||"0") + " hr", sub: "production stopped",   cls: "" },
     { label: "Total Cost",        value: "$" + (c.totalCost||0).toFixed(0),                      sub: "labour + equip + energy + materials", cls: "amber" },
     { label: "Cost / MT",        value: (c.sugarMelted||0) > 0 ? "$" + (c.costPerMT||0).toFixed(2) + " / MT" : "—", sub: "total cost ÷ raw sugar melted", cls: "" },
@@ -1556,6 +1484,7 @@ async function doSubmit() {
       if (!result.ok) throw new Error(result.error || "Unknown error from server");
       // Save current silo levels as "previous" for next shift
       localStorage.setItem("sucrocan_prev_silos", JSON.stringify(state.siloLevels));
+      localStorage.setItem("sucrocan_inv_timestamp", new Date().toISOString());
       showToast("✅ Shift report submitted! ID: " + result.shiftId);
     } else {
       // Download as JSON if not configured
@@ -1605,11 +1534,6 @@ function buildPayload(c) {
     finalMolassesM3:  parseFloat(document.getElementById("p-molasses-sent")?.value) || 0,
     totalShippedDryMT: c.totalShipped || 0,
     downtimeHours:  parseFloat(document.getElementById("p-downtime")?.value) || 0,
-    baggingLC1MT:  c.bgLC1MT  || 0,
-    baggingHC1MT:  c.bgHC1MT  || 0,
-    baggingHC20kg: c.bgHC20kg || 0,
-    baggingLC20kg: c.bgLC20kg || 0,
-    totalBaggedMT: c.totalBaggedMT || 0,
     waterM3:        c.water || 0,
     naturalGasM3:   c.gas   || 0,
     electricityKwh: c.elec  || 0,
@@ -1636,6 +1560,87 @@ function buildPayload(c) {
     })),
     labour: getLabourSnapshot(),
   };
+}
+
+// ============================================================
+//  INVENTORY VIEW
+// ============================================================
+function showInventory() {
+  document.getElementById("inventory-section").style.display = "block";
+  document.getElementById("history-section").style.display = "none";
+  document.getElementById("main").style.display = "none";
+  document.getElementById("submit-bar").style.display = "none";
+  buildInventoryView();
+}
+
+function closeInventory() {
+  document.getElementById("inventory-section").style.display = "none";
+  document.getElementById("main").style.display = "block";
+  document.getElementById("submit-bar").style.display = "flex";
+}
+
+function buildInventoryView() {
+  const body = document.getElementById("inventory-body");
+  const silos = JSON.parse(localStorage.getItem("sucrocan_prev_silos") || "{}");
+  const ts    = localStorage.getItem("sucrocan_inv_timestamp") || null;
+
+  const allSilos = [
+    ...(CONFIG.silos.liquid   || []),
+    ...(CONFIG.silos.dry      || []),
+    ...(CONFIG.silos.molasses || []),
+  ];
+
+  if (!allSilos.length) {
+    body.innerHTML = "<p>No silos configured.</p>";
+    return;
+  }
+
+  const hasData = Object.keys(silos).length > 0;
+  const updatedLine = ts
+    ? `<p style="color:var(--gray-600);font-size:.8rem;margin-bottom:16px">Last updated: <strong>${new Date(ts).toLocaleString("en-CA")}</strong></p>`
+    : `<p style="color:var(--accent);font-size:.82rem;margin-bottom:16px">⚠️ No submitted shift data yet — showing default starting levels.</p>`;
+
+  let html = updatedLine;
+
+  // Group by type
+  const groups = [
+    { label: "Liquid Sugar Silos", key: "liquid",   cls: "liquid",   unit: "m³"  },
+    { label: "Dry Sugar Silos",    key: "dry",       cls: "dry",      unit: "MT"  },
+    { label: "Molasses Silos",     key: "molasses",  cls: "molasses", unit: "MT"  },
+  ];
+
+  groups.forEach(g => {
+    const list = CONFIG.silos[g.key] || [];
+    if (!list.length) return;
+    html += `<h3 style="font-size:.88rem;font-weight:700;color:var(--gray-600);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 10px">${g.label}</h3>`;
+    let groupTotal = 0, groupCap = 0;
+    list.forEach(s => {
+      const level = silos[s.id] != null ? silos[s.id] : 0;
+      const pct   = Math.min(100, s.capacity > 0 ? (level / s.capacity) * 100 : 0);
+      groupTotal += level;
+      groupCap   += s.capacity;
+      html += `
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <div style="min-width:180px">
+            <div style="font-size:.85rem;font-weight:600">${s.label}</div>
+            <div style="font-size:.75rem;color:var(--gray-600)">${level.toLocaleString()} / ${s.capacity.toLocaleString()} ${s.unit} &nbsp;(${pct.toFixed(0)}%)</div>
+          </div>
+          <div style="flex:1;background:var(--gray-200);border-radius:99px;height:18px;overflow:hidden">
+            <div style="height:100%;border-radius:99px;width:${pct}%;background:${
+              g.cls==='liquid'   ? 'linear-gradient(90deg,#3b82f6,#60a5fa)' :
+              g.cls==='dry'      ? 'linear-gradient(90deg,#f59e0b,#fbbf24)' :
+                                   'linear-gradient(90deg,#7c3aed,#a78bfa)'
+            };transition:width .4s"></div>
+          </div>
+          <div style="min-width:48px;text-align:right;font-size:.8rem;font-weight:700;color:var(--gray-600)">${pct.toFixed(0)}%</div>
+        </div>`;
+    });
+    html += `<div style="font-size:.82rem;font-weight:700;color:var(--gray-800);text-align:right;margin-bottom:4px;padding-right:60px">
+      Total: ${groupTotal.toLocaleString()} / ${groupCap.toLocaleString()} ${g.unit}
+    </div>`;
+  });
+
+  body.innerHTML = html;
 }
 
 // ============================================================
@@ -1727,10 +1732,6 @@ function restoreDraft() {
     if (d.waterM3)        document.getElementById("e-water").value = d.waterM3;
     if (d.naturalGasM3)   document.getElementById("e-gas").value   = d.naturalGasM3;
     if (d.electricityKwh) document.getElementById("e-elec").value  = d.electricityKwh;
-    if (d.baggingLC1MT)  document.getElementById("bg-lc-1mt").value  = d.baggingLC1MT;
-    if (d.baggingHC1MT)  document.getElementById("bg-hc-1mt").value  = d.baggingHC1MT;
-    if (d.baggingHC20kg) document.getElementById("bg-hc-20kg").value = d.baggingHC20kg;
-    if (d.baggingLC20kg) document.getElementById("bg-lc-20kg").value = d.baggingLC20kg;
     if (d.deBags)     document.getElementById("m-de").value = d.deBags;
     if (d.bagFilters) document.getElementById("m-bf").value = d.bagFilters;
     if (d.toteBags)   document.getElementById("m-tb").value = d.toteBags;
