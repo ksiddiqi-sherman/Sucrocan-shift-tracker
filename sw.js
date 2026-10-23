@@ -1,4 +1,4 @@
-const CACHE = "sucrocan-v5";
+const CACHE = "sucrocan-v6";
 
 // Cache everything except config.js — config must always load fresh
 const STATIC = [
